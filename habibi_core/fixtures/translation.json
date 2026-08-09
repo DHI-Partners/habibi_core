@@ -1,0 +1,30 @@
+[
+ {
+  "doctype": "Translation",
+  "name": "habibi-brand-erpnext-en",
+  "language": "en",
+  "source_text": "ERPNext",
+  "translated_text": "Habibi ERP"
+ },
+ {
+  "doctype": "Translation",
+  "name": "habibi-brand-erpnext-ru",
+  "language": "ru",
+  "source_text": "ERPNext",
+  "translated_text": "Habibi ERP"
+ },
+ {
+  "doctype": "Translation",
+  "name": "habibi-brand-erpnext-settings-en",
+  "language": "en",
+  "source_text": "ERPNext Settings",
+  "translated_text": "Settings"
+ },
+ {
+  "doctype": "Translation",
+  "name": "habibi-brand-erpnext-settings-ru",
+  "language": "ru",
+  "source_text": "ERPNext Settings",
+  "translated_text": "Настройки"
+ }
+]
