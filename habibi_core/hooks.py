@@ -258,3 +258,37 @@ required_apps = ["erpnext"]
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+
+# Ребрендинг ERPNext
+# ------------------
+# Раньше это жило в форке DHI-Partners/habibi_erp: четыре коммита правили
+# app_title в hooks.py и метки в трёх JSON-фикстурах ERPNext. Форк стоил
+# ребейза на каждом обновлении ERPNext — ради трёх подписей в интерфейсе.
+#
+# Теперь то же самое делается отсюда, переводами. Работает потому, что все
+# эти строки уходят на экран через функцию перевода:
+#
+#   frappe/apps.py:42                    "title": _(app_detail.get("title"))
+#   .../views/workspace/workspace.js     __(this._page.title), __(this._page.name)
+#
+# Записи лежат в fixtures/translation.json и импортируются на каждом
+# bench migrate: sync_fixtures() (frappe/migrate.py:171) читает все *.json
+# из каталога fixtures независимо от списка ниже, а import_file идёт
+# с force=True, поэтому применяется всегда и не плодит дублей.
+#
+# Плюс к форку: запись Workspace остаётся с именем "ERPNext Settings", и
+# ссылки на неё (link_to в desktop_icon, name в workspace_sidebar) остаются
+# целыми. Форку приходилось править их синхронно, иначе ломался переход.
+#
+# Список ниже нужен только для обратной выгрузки: bench export-fixtures.
+fixtures = [
+	{
+		"doctype": "Translation",
+		"filters": [["source_text", "in", ["ERPNext", "ERPNext Settings"]]],
+	},
+]
+
+# Единственное место, где название останется английским, — диалог «О программе»
+# со списком версий: frappe/utils/change_log.py:130 берёт app_title каждого
+# приложения напрямую, без перевода. Экран информационный, открывается редко.
