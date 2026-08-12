@@ -148,6 +148,18 @@ required_apps = ["erpnext"]
 # 	}
 # }
 
+# Колонка канбан-доски — это значение Select-поля, а не подпись. Кнопка
+# «Добавить колонку» (kanban_board.py:79) дописывает колонку только в доску,
+# из-за чего карточку туда не перетащить: _validate_selects отвергает значение,
+# которого нет в Options (base_document.py:1119). Хук закрывает этот разрыв.
+# Трогает ТОЛЬКО пользовательские Select-поля, стандартные status и priority —
+# никогда.
+doc_events = {
+	"Kanban Board": {
+		"on_update": "habibi_core.kanban_stages.sync_field_options",
+	},
+}
+
 # Scheduled Tasks
 # ---------------
 
