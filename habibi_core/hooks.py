@@ -30,6 +30,10 @@ required_apps = ["erpnext"]
 # app_include_css = "/assets/habibi_core/css/habibi_core.css"
 # app_include_js = "/assets/habibi_core/js/habibi_core.js"
 
+# Пункт меню «Переименовать этап» на канбан-доске: хука для канбан-вью нет,
+# патчим KanbanView.prototype (подробности в самом файле).
+app_include_js = "/assets/habibi_core/js/kanban_stages.js"
+
 # include js, css files in header of web template
 # web_include_css = "/assets/habibi_core/css/habibi_core.css"
 # web_include_js = "/assets/habibi_core/js/habibi_core.js"
@@ -147,6 +151,18 @@ required_apps = ["erpnext"]
 # 		"on_trash": "method"
 # 	}
 # }
+
+# Колонка канбан-доски — это значение Select-поля, а не подпись. Кнопка
+# «Добавить колонку» (kanban_board.py:79) дописывает колонку только в доску,
+# из-за чего карточку туда не перетащить: _validate_selects отвергает значение,
+# которого нет в Options (base_document.py:1119). Хук закрывает этот разрыв.
+# Трогает ТОЛЬКО пользовательские Select-поля, стандартные status и priority —
+# никогда.
+doc_events = {
+	"Kanban Board": {
+		"on_update": "habibi_core.kanban_stages.sync_field_options",
+	},
+}
 
 # Scheduled Tasks
 # ---------------
@@ -286,6 +302,12 @@ fixtures = [
 	{
 		"doctype": "Translation",
 		"filters": [["source_text", "in", ["ERPNext", "ERPNext Settings"]]],
+	},
+	# Поле «Этап» для канбан-досок. Значения дальше правит сам пользователь
+	# прямо на доске (habibi_core.kanban_stages), здесь только стартовый набор.
+	{
+		"doctype": "Custom Field",
+		"filters": [["name", "in", ["Task-custom_stage"]]],
 	},
 ]
 
