@@ -1,0 +1,15 @@
+[
+ {
+  "doctype": "Custom Field",
+  "name": "Task-custom_stage",
+  "dt": "Task",
+  "fieldname": "custom_stage",
+  "label": "Этап",
+  "fieldtype": "Select",
+  "options": "Бэклог\nВ работе\nНа проверке\nГотово",
+  "default": "Бэклог",
+  "insert_after": "status",
+  "in_standard_filter": 1,
+  "module": "Habibi Core"
+ }
+]

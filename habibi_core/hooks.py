@@ -30,6 +30,10 @@ required_apps = ["erpnext"]
 # app_include_css = "/assets/habibi_core/css/habibi_core.css"
 # app_include_js = "/assets/habibi_core/js/habibi_core.js"
 
+# Пункт меню «Переименовать этап» на канбан-доске: хука для канбан-вью нет,
+# патчим KanbanView.prototype (подробности в самом файле).
+app_include_js = "/assets/habibi_core/js/kanban_stages.js"
+
 # include js, css files in header of web template
 # web_include_css = "/assets/habibi_core/css/habibi_core.css"
 # web_include_js = "/assets/habibi_core/js/habibi_core.js"
@@ -298,6 +302,12 @@ fixtures = [
 	{
 		"doctype": "Translation",
 		"filters": [["source_text", "in", ["ERPNext", "ERPNext Settings"]]],
+	},
+	# Поле «Этап» для канбан-досок. Значения дальше правит сам пользователь
+	# прямо на доске (habibi_core.kanban_stages), здесь только стартовый набор.
+	{
+		"doctype": "Custom Field",
+		"filters": [["name", "in", ["Task-custom_stage"]]],
 	},
 ]
 
