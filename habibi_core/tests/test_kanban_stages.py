@@ -60,6 +60,12 @@ class TestKanbanStages(IntegrationTestCase):
 
 	def setUp(self):
 		frappe.set_user("Administrator")
+		# Откат между тестами не спасает: Custom Field.on_update вызывает
+		# frappe.db.updatedb(), а DDL в MariaDB делает неявный commit — доски
+		# предыдущих тестов остаются в базе. Поэтому чистим их явно, иначе
+		# соседний тест выглядит как «значение занято другой доской».
+		for name in frappe.get_all("Kanban Board", filters={"field_name": FIELDNAME}, pluck="name"):
+			frappe.delete_doc("Kanban Board", name, force=True, ignore_permissions=True)
 		frappe.db.set_value("Custom Field", CUSTOM_FIELD, "options", "Бэклог\nВ работе")
 		frappe.clear_cache(doctype="Task")
 
