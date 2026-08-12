@@ -8,6 +8,10 @@ FIELDNAME = "custom_test_stage"
 
 
 def make_board(name, field_name, columns):
+	# Прогон должен быть повторяемым: доска могла пережить прошлый прогон,
+	# если тот упал до отката транзакции.
+	if frappe.db.exists("Kanban Board", name):
+		frappe.delete_doc("Kanban Board", name, force=True, ignore_permissions=True)
 	board = frappe.get_doc(
 		{
 			"doctype": "Kanban Board",
@@ -47,6 +51,9 @@ class TestKanbanStages(IntegrationTestCase):
 
 	@classmethod
 	def tearDownClass(cls):
+		# Откат до удаления поля: иначе commit ниже зафиксировал бы доски и
+		# задачи, созданные тестами, и следующий прогон падал бы на дубликатах.
+		frappe.db.rollback()
 		frappe.delete_doc("Custom Field", CUSTOM_FIELD, force=True, ignore_permissions=True)
 		frappe.db.commit()
 		super().tearDownClass()
@@ -127,6 +134,15 @@ class TestKanbanStages(IntegrationTestCase):
 
 		board.reload()
 		self.assertEqual([c.column_name for c in board.columns], ["Бэклог", "В процессе"])
+
+	def test_rename_keeps_old_value_used_by_another_board(self):
+		other = make_board("Стенд соседней доски", FIELDNAME, ["В работе"])
+		board = make_board("Стенд общего значения", FIELDNAME, ["Бэклог", "В работе"])
+
+		rename_stage(board.name, "В работе", "В процессе")
+
+		self.assertIn("В работе", field_options())
+		self.assertEqual([c.column_name for c in other.reload().columns], ["В работе"])
 
 	def test_rename_rejects_blank_name(self):
 		board = make_board("Стенд пустого имени", FIELDNAME, ["Бэклог"])
