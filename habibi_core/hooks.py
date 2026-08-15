@@ -158,9 +158,16 @@ app_include_js = "/assets/habibi_core/js/kanban_stages.js"
 # которого нет в Options (base_document.py:1119). Хук закрывает этот разрыв.
 # Трогает ТОЛЬКО пользовательские Select-поля, стандартные status и priority —
 # никогда.
+#
+# Лимит пользователей приходит из site_config.json (его пишет saas_bridge) и
+# применяется на validate, а не на before_insert: иначе он обходится созданием
+# выключенного пользователя с последующим включением. См. limits.py.
 doc_events = {
 	"Kanban Board": {
 		"on_update": "habibi_core.kanban_stages.sync_field_options",
+	},
+	"User": {
+		"validate": "habibi_core.limits.enforce_user_limit",
 	},
 }
 
@@ -316,7 +323,11 @@ fixtures = [
 # сырым, а фронт выводит его без __(). Поэтому подменяем прямо в bootinfo
 # через extend_bootinfo (вызывается в frappe/sessions.py после заполнения
 # app_data). Это второе — и последнее — место, ради которого держали форк.
-extend_bootinfo = ["habibi_core.boot.rebrand_bootinfo"]
+extend_bootinfo = [
+	"habibi_core.boot.rebrand_bootinfo",
+	# тариф и расход мест — чтобы интерфейс мог показать «занято 2 из 10»
+	"habibi_core.limits.add_limits_to_bootinfo",
+]
 
 # Единственное место, где название останется английским, — диалог «О программе»
 # со списком версий: frappe/utils/change_log.py:130 берёт app_title каждого
